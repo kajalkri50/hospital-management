@@ -1,7 +1,3 @@
-website link: https://the-html.onrender.com
-and https://the-html-jqac.onrender.com
-
-
 # Smart Hospital Finder & Emergency Healthcare Platform
 
 Modular Django + Tailwind stack for **GPS hospital discovery**, **bed polling**, **appointments with Stripe**, **emergency nearest-ER flow**, **hospital admin dashboards**, **rule-based chatbot**, and **email notifications**.
