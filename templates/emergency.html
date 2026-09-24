@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Emergency Finder{% endblock %}
+{% block content %}
+<div class="max-w-2xl">
+  <h1 class="text-3xl font-bold text-red-800">Emergency hospital finder</h1>
+  <p class="mt-2 text-slate-600">
+    For life-threatening emergencies, call your local emergency number first. This tool helps locate nearby ER-capable hospitals.
+  </p>
+  <form id="emergency-form" method="post" action="{% url 'hospitals:emergency_results' %}" class="mt-8 space-y-4 rounded-2xl border border-red-100 bg-white p-6 shadow-sm">
+    {% csrf_token %}
+    <input type="hidden" name="lat" id="lat-input">
+    <input type="hidden" name="lng" id="lng-input">
+    <button type="button" id="geo-btn" class="w-full rounded-xl bg-red-600 px-4 py-3 text-sm font-semibold text-white hover:bg-red-700">
+      Use my location
+    </button>
+    <p class="text-center text-xs text-slate-500">or</p>
+    <div class="grid gap-3 sm:grid-cols-2">
+      <label class="text-sm">Latitude
+        <input type="text" id="lat-manual" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="e.g. 37.77">
+      </label>
+      <label class="text-sm">Longitude
+        <input type="text" id="lng-manual" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="e.g. -122.42">
+      </label>
+    </div>
+    <button type="submit" class="w-full rounded-xl border border-slate-200 bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800">
+      Find nearest ER hospitals
+    </button>
+  </form>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+  document.getElementById('geo-btn').addEventListener('click', function () {
+    if (!navigator.geolocation) {
+      alert('Geolocation not supported in this browser.');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      document.getElementById('lat-input').value = pos.coords.latitude;
+      document.getElementById('lng-input').value = pos.coords.longitude;
+      document.getElementById('emergency-form').submit();
+    }, function () {
+      alert('Unable to read location. Enter coordinates manually.');
+    });
+  });
+  document.getElementById('emergency-form').addEventListener('submit', function () {
+    if (!document.getElementById('lat-input').value) {
+      document.getElementById('lat-input').value = document.getElementById('lat-manual').value;
+      document.getElementById('lng-input').value = document.getElementById('lng-manual').value;
+    }
+  });
+</script>
+{% endblock %}

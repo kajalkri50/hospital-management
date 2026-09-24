@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div class="space-y-6">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <h1 class="text-3xl font-bold text-slate-900">Notifications</h1>
+    {% if unread_count %}
+    <form action="{% url 'notifications:mark_all_read' %}" method="post">
+      {% csrf_token %}
+      <button type="submit" class="text-sm font-semibold text-teal-800 hover:underline">Mark all read</button>
+    </form>
+    {% endif %}
+  </div>
+  <ul class="divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white shadow-sm">
+    {% for n in notifications %}
+      <li class="px-4 py-4 {% if not n.read %}bg-teal-50/40{% endif %}">
+        <p class="font-medium text-slate-900">{{ n.title }}</p>
+        {% if n.body %}<p class="mt-1 text-sm text-slate-600">{{ n.body }}</p>{% endif %}
+        <p class="mt-2 text-xs text-slate-400">{{ n.created_at }}</p>
+      </li>
+    {% empty %}
+      <li class="px-4 py-10 text-center text-sm text-slate-500">No notifications yet.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

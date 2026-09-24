@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Emergency — Nearest hospitals{% endblock %}
+{% block extra_head %}
+{% if GOOGLE_MAPS_API_KEY %}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&loading=async" async defer></script>
+{% endif %}
+{% endblock %}
+{% block content %}
+<div class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-900">Top emergency hospitals near you</h1>
+    <p class="text-sm text-slate-600">Based on your coordinates: {{ lat|floatformat:4 }}, {{ lng|floatformat:4 }}</p>
+  </div>
+  <ol class="space-y-4">
+    {% for row in results %}
+      {% with h=row.hospital %}
+      <li class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <span class="text-xs font-semibold uppercase text-clinical-700">#{{ forloop.counter }}</span>
+            <h2 class="text-lg font-semibold text-slate-900">{{ h.name }}</h2>
+            <p class="text-sm text-slate-600">{{ h.address }}, {{ h.city }}</p>
+            <p class="mt-1 text-sm text-slate-700">≈ {{ row.distance_km }} km · ★ {{ h.rating }}</p>
+          </div>
+          <div class="flex flex-col gap-2">
+            <a class="rounded-lg bg-clinical-600 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-clinical-800"
+               target="_blank" rel="noopener"
+               href="https://www.google.com/maps/dir/?api=1&destination={{ h.latitude }},{{ h.longitude }}">
+              Directions (Google Maps)
+            </a>
+            <a class="text-center text-sm text-clinical-800 hover:underline" href="{% url 'hospitals:detail' h.slug %}">Hospital details</a>
+          </div>
+        </div>
+      </li>
+      {% endwith %}
+    {% empty %}
+      <li class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">No emergency hospitals found in the dataset.</li>
+    {% endfor %}
+  </ol>
+  {% if GOOGLE_MAPS_API_KEY and results %}
+  <div id="map" class="h-72 w-full rounded-2xl border border-slate-200 bg-slate-100"></div>
+  {% elif not GOOGLE_MAPS_API_KEY %}
+  <p class="text-sm text-slate-500">Add <code class="rounded bg-slate-100 px-1">GOOGLE_MAPS_API_KEY</code> to show the emergency map.</p>
+  {% endif %}
+</div>
+{% endblock %}
+{% block extra_js %}
+{% if GOOGLE_MAPS_API_KEY and results %}
+<script>
+  function initMap() {
+    const center = { lat: {{ lat }}, lng: {{ lng }} };
+    const map = new google.maps.Map(document.getElementById('map'), { zoom: 11, center });
+    new google.maps.Marker({ position: center, map, title: 'You' });
+    {% for row in results %}
+      new google.maps.Marker({
+        position: { lat: {{ row.hospital.latitude }}, lng: {{ row.hospital.longitude }} },
+        map,
+        title: '{{ row.hospital.name|escapejs }}'
+      });
+    {% endfor %}
+  }
+  window.addEventListener('load', initMap);
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Hospital admin{% endblock %}
+{% block content %}
+<div class="space-y-8">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-bold text-slate-900">Hospital admin dashboard</h1>
+      <p class="text-slate-600">Monitor appointments, beds, and schedules.</p>
+    </div>
+    {% if managed_hospitals.count > 1 %}
+    <form method="get" class="text-sm">
+      <label>Hospital
+        <select name="hospital" class="ml-2 rounded-lg border border-slate-200 px-2 py-1" onchange="this.form.submit()">
+          {% for h in managed_hospitals %}
+            <option value="{{ h.pk }}" {% if selected_hospital and selected_hospital.pk == h.pk %}selected{% endif %}>{{ h.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </form>
+    {% endif %}
+  </div>
+
+  <div class="grid gap-4 md:grid-cols-4">
+    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <p class="text-xs font-semibold uppercase text-slate-500">Total appointments</p>
+      <p class="mt-2 text-2xl font-bold text-slate-900">{{ total_appointments }}</p>
+    </div>
+    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <p class="text-xs font-semibold uppercase text-slate-500">Pending approval</p>
+      <p class="mt-2 text-2xl font-bold text-amber-700">{{ pending_approvals }}</p>
+    </div>
+    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:col-span-2">
+      <p class="text-xs font-semibold uppercase text-slate-500">Quick links</p>
+      <div class="mt-2 flex flex-wrap gap-2 text-sm">
+        <a class="rounded-lg bg-clinical-600 px-3 py-1.5 text-white hover:bg-clinical-800" href="{% url 'hospitals:hospital_admin_doctors' %}{% if selected_hospital %}?hospital={{ selected_hospital.pk }}{% endif %}">Doctors</a>
+        <a class="rounded-lg border border-slate-200 px-3 py-1.5 hover:bg-slate-50" href="{% url 'hospitals:hospital_admin_resources' %}{% if selected_hospital %}?hospital={{ selected_hospital.pk }}{% endif %}">Resources</a>
+        <a class="rounded-lg border border-slate-200 px-3 py-1.5 hover:bg-slate-50" href="{% url 'hospitals:hospital_admin_appointments' %}{% if selected_hospital %}?hospital={{ selected_hospital.pk }}{% endif %}">Appointments</a>
+      </div>
+    </div>
+  </div>
+
+  {% if selected_hospital and bed_snapshot %}
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <h2 class="text-lg font-semibold text-slate-900">Bed & equipment snapshot — {{ selected_hospital.name }}</h2>
+    <dl class="mt-4 grid gap-4 sm:grid-cols-4 text-sm">
+      <div><dt class="text-slate-500">ICU available</dt><dd class="text-xl font-semibold">{{ bed_snapshot.icu_beds_available }} / {{ bed_snapshot.icu_beds_total }}</dd></div>
+      <div><dt class="text-slate-500">General beds</dt><dd class="text-xl font-semibold">{{ bed_snapshot.general_beds_available }} / {{ bed_snapshot.general_beds_total }}</dd></div>
+      <div><dt class="text-slate-500">Ventilators</dt><dd class="text-xl font-semibold">{{ bed_snapshot.ventilators_available }}</dd></div>
+      <div><dt class="text-slate-500">Ambulances</dt><dd class="text-xl font-semibold">{{ bed_snapshot.ambulances_available }}</dd></div>
+    </dl>
+  </div>
+  {% elif managed_hospitals.count %}
+  <p class="text-sm text-slate-500">Select a hospital to see widgets (append <code class="rounded bg-slate-100 px-1">?hospital=&lt;id&gt;</code> if you manage multiple).</p>
+  {% endif %}
+
+  {% if selected_hospital %}
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <h2 class="text-lg font-semibold text-slate-900">Recent appointments</h2>
+    <ul class="mt-4 divide-y divide-slate-100 text-sm">
+      {% for a in recent_appointments %}
+        <li class="flex justify-between py-2">
+          <span>{{ a.patient.username }} — {{ a.doctor.display_name }}</span>
+          <span class="text-slate-500">{{ a.get_status_display }}</span>
+        </li>
+      {% empty %}
+        <li class="py-4 text-slate-500">No appointments yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

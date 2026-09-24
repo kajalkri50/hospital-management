@@ -1,0 +1,101 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Smart Hospital Finder{% endblock title %}</title>
+  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            clinical: { 50: '#f0fdfa', 600: '#0d9488', 800: '#115e59', 900: '#134e4a' },
+            hero: { navy: '#0c1929', deep: '#0a1628', cyan: '#2dd4bf', accent: '#f59e0b' }
+          },
+          fontFamily: {
+            display: ['system-ui', 'Segoe UI', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  {% block extra_head %}{% endblock extra_head %}
+</head>
+<body class="h-full min-h-screen bg-slate-50 text-slate-900 antialiased flex flex-col {% block body_class %}{% endblock body_class %}">
+  {% block site_header %}
+  <header class="border-b border-slate-200 bg-white/90 backdrop-blur sticky top-0 z-40">
+    <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
+      <a href="{% url 'hospitals:home' %}" class="flex items-center gap-2 font-semibold text-clinical-800">
+        <span class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-clinical-600 text-white text-sm">+</span>
+        <span>Smart Hospital</span>
+      </a>
+      <nav class="flex flex-wrap items-center gap-2 text-sm">
+        <a class="rounded-md px-3 py-1.5 text-slate-700 hover:bg-slate-100 {%if request.resolver_match.url_name == 'search' %}bg-slate-200 text-slate-900{% endif %}" href="{% url 'hospitals:search' %}">Search</a>
+        <a class="rounded-md px-3 py-1.5 text-slate-700 hover:bg-slate-100 {%if request.resolver_match.url_name == 'emergency' %}bg-slate-200 text-slate-900{% endif %}" href="{% url 'hospitals:emergency' %}">Emergency</a>
+        {% if user.is_authenticated %}
+          <a class="rounded-md px-3 py-1.5 text-slate-700 hover:bg-slate-100 {%if request.resolver_match.view_name == 'dashboard' %}bg-slate-200 text-slate-900{% endif %}" href="{% url 'dashboard' %}">Dashboard</a>
+          <a class="rounded-md px-3 py-1.5 text-slate-700 hover:bg-slate-100 {%if request.resolver_match.url_name == 'history' %}bg-slate-200 text-slate-900{% endif %}" href="{% url 'appointments:history' %}">Appointments</a>
+          <a class="rounded-md px-3 py-1.5 text-slate-700 hover:bg-slate-100 {%if request.resolver_match.url_name == 'list' %}bg-slate-200 text-slate-900{% endif %}" href="{% url 'notifications:list' %}">Notifications</a>
+          <a class="rounded-md px-3 py-1.5 text-slate-700 hover:bg-slate-100 {%if request.resolver_match.url_name == 'profile' %}bg-slate-200 text-slate-900{% endif %}" href="{% url 'accounts:profile' %}">Profile</a>
+          <form action="{% url 'accounts:logout' %}" method="post" class="inline">
+            {% csrf_token %}
+            <button type="submit" class="rounded-md bg-slate-900 px-3 py-1.5 text-white hover:bg-slate-800">Logout</button>
+          </form>
+        {% else %}
+          <a class="rounded-md px-3 py-1.5 text-slate-700 hover:bg-slate-100" href="{% url 'accounts:login' %}">Login</a>
+          <a class="rounded-md bg-clinical-600 px-3 py-1.5 text-white hover:bg-clinical-800" href="{% url 'accounts:register' %}">Register</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+  {% endblock site_header%}
+
+  {% if messages %}
+    <div class="mx-auto max-w-6xl px-4 pt-4 space-y-2 relative z-50 {% block messages_class %}{% endblock messages_class %}">
+      {% for message in messages %}
+        <div class="rounded-lg border px-4 py-2 text-sm {% if message.tags == 'error' %}border-red-200 bg-red-50 text-red-900{% elif message.tags == 'success' %}border-emerald-200 bg-emerald-50 text-emerald-900{% else %}border-slate-200 bg-white{% endif %}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <main class="{% block main_class %}mx-auto w-full max-w-6xl flex-1 px-4 py-8{% endblock main_class %}">
+    {% block content %}{% endblock content %}
+  </main>
+
+  <a href="{% url 'hospitals:emergency' %}"
+     class="fixed bottom-6 right-6 z-50 inline-flex items-center gap-2 rounded-full bg-red-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-red-600/30 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400"
+     title="Emergency hospital finder">
+    <span class="text-lg leading-none">!</span>
+    Emergency
+  </a>
+
+  <div id="chatbot-root" class="fixed bottom-24 right-6 z-50 w-full max-w-sm">
+    <button type="button" id="chatbot-toggle"
+            class="mb-2 ml-auto flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-800 shadow-md hover:bg-slate-50">
+      Assistant
+    </button>
+    <div id="chatbot-panel" class="hidden overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+      <div class="border-b border-slate-100 bg-clinical-50 px-4 py-2 text-sm font-semibold text-clinical-900">Care assistant</div>
+      <div id="chatbot-messages" class="max-h-64 space-y-2 overflow-y-auto px-4 py-3 text-sm text-slate-700"></div>
+      <form id="chatbot-form" class="flex gap-2 border-t border-slate-100 p-3">
+        {% csrf_token %}
+        <input name="message" id="chatbot-input" class="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="Ask about hospitals, booking…" autocomplete="off">
+        <button type="submit" class="rounded-lg bg-clinical-600 px-3 py-2 text-sm font-medium text-white hover:bg-clinical-800">Send</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="{% static 'js/chatbot.js' %}"></script>
+
+  {% block extra_js %}{% endblock extra_js %}
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,513 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Smart Hospital Finder — Your Health Is Our Priority{% endblock title %}
+
+{% block body_class %}bg-slate-50{% endblock body_class %}
+
+{% block site_header %}
+<header class="absolute inset-x-0 top-0 z-50">
+  <div
+    class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-5 lg:px-8"
+  >
+    <a
+      href="{% url 'hospitals:home' %}"
+      class="flex items-center gap-2 font-semibold text-white drop-shadow-sm"
+    >
+      <span
+        class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/15 ring-1 ring-white/30"
+      >
+        <svg
+          class="h-5 w-5 text-teal-300"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            d="M12 21s-6.716-4.11-8.487-8.237C2.742 10.637 4.156 8 7 8c1.867 0 3.355 1.43 5 3 1.645-1.57 3.133-3 5-3 2.844 0 4.258 2.637 2.487 4.763C18.716 16.89 12 21 12 21z"
+          />
+        </svg>
+      </span>
+      <span class="text-lg tracking-tight">Smart Hospital Finder</span>
+    </a>
+    <nav
+      class="flex flex-wrap items-center justify-center gap-1 text-sm text-white/95 md:gap-2"
+    >
+      <a
+        class="rounded-full px-3 py-1.5 hover:bg-white/10"
+        href="{% url 'hospitals:home' %}"
+        >Home</a
+      >
+      <a
+        class="rounded-full px-3 py-1.5 hover:bg-white/10"
+        href="{% url 'hospitals:search' %}"
+        >Services</a
+      >
+      <a
+        class="rounded-full px-3 py-1.5 hover:bg-white/10"
+        href="{% url 'hospitals:emergency' %}"
+        >Emergency</a
+      >
+      {% if user.is_authenticated %}
+      <a
+        class="rounded-full px-3 py-1.5 hover:bg-white/10"
+        href="{% url 'dashboard' %}"
+        >Dashboard</a
+      >
+      <form action="{% url 'accounts:logout' %}" method="post" class="inline">
+        {% csrf_token %}
+        <button
+          type="submit"
+          class="rounded-full bg-white/15 px-3 py-1.5 hover:bg-white/25"
+        >
+          Logout
+        </button>
+      </form>
+      {% else %}
+      <a
+        class="rounded-full px-3 py-1.5 hover:bg-white/10"
+        href="{% url 'accounts:login' %}"
+        >Login</a
+      >
+      <a
+        class="rounded-full bg-teal-400 px-4 py-1.5 font-semibold text-slate-900 shadow-lg shadow-teal-500/20 hover:bg-teal-300"
+        href="{% url 'accounts:register' %}"
+        >Register</a
+      >
+      {% endif %}
+    </nav>
+  </div>
+</header>
+{% endblock site_header %}
+
+{% block messages_class %}absolute left-0 right-0 top-20{% endblock messages_class %}
+
+{% block main_class %}w-full max-w-none flex-1 px-0 py-0{% endblock main_class %}
+
+{% block content %}
+{# —— Hero: deep blue gradient, pattern, medical hero image —— #}
+
+<section
+  class="relative isolate min-h-[88vh] overflow-hidden bg-gradient-to-br from-[#0a1628] via-[#0f2744] to-[#0c4a6e] pb-16 pt-28 text-white lg:min-h-[90vh] lg:pb-24 lg:pt-32"
+>
+  {# Decorative grid + plus marks #}
+  <div
+    class="pointer-events-none absolute inset-0 opacity-[0.07]"
+    style="
+      background-image: url(&quot;data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E&quot;);
+    "
+  ></div>
+  <div
+    class="pointer-events-none absolute -left-20 top-1/4 h-72 w-72 rounded-full bg-teal-500/20 blur-3xl"
+  ></div>
+  <div
+    class="pointer-events-none absolute -right-16 bottom-20 h-80 w-80 rounded-full bg-cyan-400/15 blur-3xl"
+  ></div>
+  <div
+    class="pointer-events-none absolute right-[8%] top-[18%] hidden lg:block"
+  >
+    <div
+      class="h-16 w-16 rotate-12 rounded-2xl border border-white/20 bg-gradient-to-br from-teal-400/30 to-cyan-600/20 shadow-xl backdrop-blur-sm"
+    ></div>
+  </div>
+  <div
+    class="pointer-events-none absolute left-[6%] bottom-[30%] hidden lg:block"
+  >
+    <div
+      class="h-20 w-20 -rotate-6 rounded-full border-2 border-teal-400/40"
+    ></div>
+  </div>
+
+  <div
+    class="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-4 lg:grid-cols-2 lg:gap-16 lg:px-8"
+  >
+    <div>
+      <p
+        class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-teal-200"
+      >
+        Smart care platform · 24/7 emergency access
+      </p>
+      <h1
+        class="mt-6 font-display text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-[3.25rem] lg:leading-[1.1]"
+      >
+        Your <span class="text-teal-300">Health</span> Is Our Priority.
+      </h1>
+      <p class="mt-6 max-w-xl text-lg leading-relaxed text-blue-100/90">
+        Find nearby hospitals with live bed availability, book specialists in
+        minutes, and reach the nearest ER instantly when every second counts.
+      </p>
+      <div class="mt-10 flex flex-wrap items-center gap-4">
+        <a
+          href="{% url 'hospitals:search' %}"
+          class="inline-flex items-center justify-center rounded-full bg-teal-400 px-8 py-3.5 text-sm font-bold text-slate-900 shadow-lg shadow-teal-500/25 transition hover:bg-teal-300"
+        >
+          Find a hospital
+        </a>
+        <a
+          href="{% url 'hospitals:emergency' %}"
+          class="inline-flex items-center justify-center rounded-full border-2 border-white/40 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/15"
+        >
+          Emergency mode
+        </a>
+      </div>
+      <div
+        class="mt-12 flex flex-wrap gap-8 border-t border-white/10 pt-10 text-sm text-blue-100/80"
+      >
+        <div>
+          <p class="text-2xl font-bold text-white">GPS</p>
+          <p class="mt-1">Nearby discovery</p>
+        </div>
+        <div>
+          <p class="text-2xl font-bold text-white">Live</p>
+          <p class="mt-1">Beds &amp; resources</p>
+        </div>
+        <div>
+          <p class="text-2xl font-bold text-white">Secure</p>
+          <p class="mt-1">Online booking &amp; pay</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="relative mx-auto max-w-lg lg:mx-0 lg:max-w-none">
+      <div
+        class="absolute -inset-4 rounded-[2rem] bg-gradient-to-tr from-teal-500/20 to-cyan-500/10 blur-2xl lg:-inset-6"
+      ></div>
+      <div
+        class="relative overflow-hidden rounded-[2rem] border border-white/20 bg-slate-900/40 shadow-2xl shadow-black/40 ring-1 ring-white/10"
+      >
+        <img
+          src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=900&q=85"
+          alt="Healthcare professional ready to care for patients"
+          class="aspect-[4/5] w-full object-cover object-top sm:aspect-[5/6] lg:aspect-auto lg:max-h-[min(560px,70vh)]"
+          width="800"
+          height="960"
+          loading="eager"
+        />
+        <div
+          class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0a1628]/95 via-[#0a1628]/40 to-transparent p-6 pt-16"
+        >
+          <p class="text-sm font-medium text-teal-200">
+            Trusted emergency &amp; specialty network
+          </p>
+          <p class="mt-1 text-xs text-blue-100/70">
+            Book appointments · View doctors · Real-time capacity
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# subtle wave bottom #}
+  <div class="absolute bottom-0 left-0 right-0 text-white/10">
+    <svg
+      class="w-full translate-y-px"
+      viewBox="0 0 1440 48"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M0 48V20C240 4 480 4 720 12C960 20 1200 36 1440 28V48H0Z"
+        fill="currentColor"
+      />
+    </svg>
+  </div>
+</section>
+
+{# —— Services strip (template style) —— #}
+<section class="relative z-10 -mt-px bg-slate-50 px-4 py-16 lg:px-8">
+  <div class="mx-auto max-w-7xl">
+    <div
+      class="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-xl shadow-slate-200/50"
+    >
+      <div
+        class="border-b border-slate-100 bg-gradient-to-r from-teal-600 to-cyan-600 px-6 py-4 text-center"
+      >
+        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-white">
+          Our best services
+        </h2>
+      </div>
+      <div class="grid gap-8 p-8 md:grid-cols-2 lg:gap-12 lg:p-12">
+        <ul class="space-y-3 text-slate-700">
+          <li class="flex items-start gap-3">
+            <span
+              class="mt-2 h-1.5 w-1.5 shrink-0 rounded-sm bg-teal-500"
+            ></span>
+            Hospital search &amp; GPS discovery
+          </li>
+          <li class="flex items-start gap-3">
+            <span
+              class="mt-2 h-1.5 w-1.5 shrink-0 rounded-sm bg-teal-500"
+            ></span>
+            Specialist doctors &amp; departments
+          </li>
+          <li class="flex items-start gap-3">
+            <span
+              class="mt-2 h-1.5 w-1.5 shrink-0 rounded-sm bg-teal-500"
+            ></span>
+            24/7 emergency hospital finder
+          </li>
+        </ul>
+        <ul class="space-y-3 text-slate-700">
+          <li class="flex items-start gap-3">
+            <span
+              class="mt-2 h-1.5 w-1.5 shrink-0 rounded-sm bg-teal-500"
+            ></span>
+            Live ICU &amp; general bed counts
+          </li>
+          <li class="flex items-start gap-3">
+            <span
+              class="mt-2 h-1.5 w-1.5 shrink-0 rounded-sm bg-teal-500"
+            ></span>
+            Appointments with secure payment
+          </li>
+          <li class="flex items-start gap-3">
+            <span
+              class="mt-2 h-1.5 w-1.5 shrink-0 rounded-sm bg-teal-500"
+            ></span>
+            Reminders &amp; in-app notifications
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    {# —— Featured hospitals with images —— #}
+    <div class="mt-20">
+      <div class="text-center">
+        <p
+          class="text-sm font-semibold uppercase tracking-widest text-teal-600"
+        >
+          Partner hospitals
+        </p>
+        <h2 class="mt-2 text-3xl font-bold text-slate-900 sm:text-4xl">
+          Find care near you
+        </h2>
+        <p class="mx-auto mt-3 max-w-2xl text-slate-600">
+          Each facility shows live availability and emergency status—tap through
+          to book or view doctors.
+        </p>
+
+        {# Admin button to add hospitals #} {% if user.is_staff %}
+        <div class="mt-6 flex justify-center">
+          <a
+            href="/admin/hospitals/hospital/add/"
+            class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition"
+          >
+            <svg
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            Add Hospital
+          </a>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {% for h in featured_hospitals %} {% with res=h.safe_resources %}
+        <article
+          class="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-md transition hover:-translate-y-1 hover:shadow-xl hover:shadow-teal-900/10"
+        >
+          <a
+            href="{% url 'hospitals:detail' h.slug %}"
+            class="relative block aspect-[16/10] overflow-hidden bg-slate-200"
+          >
+            {% if h.cover_image %}
+            <img
+              src="{{ h.cover_image }}"
+              alt="{{ h.name }}"
+              class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+              loading="lazy"
+              width="640"
+              height="400"
+            />
+            {% else %}
+            <img
+              src="https://images.unsplash.com/photo-1587351021759-3e566b6af7cc?w=800&q=80"
+              alt="{{ h.name }}"
+              class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+              loading="lazy"
+              width="640"
+              height="400"
+            />
+            {% endif %}
+            <div class="absolute left-3 top-3 flex flex-wrap gap-2">
+              {% if h.emergency_available %}
+              <span
+                class="rounded-full bg-red-600 px-2.5 py-0.5 text-xs font-bold text-white shadow"
+                >ER open</span
+              >
+              {% endif %}
+              <span
+                class="rounded-full bg-slate-900/75 px-2.5 py-0.5 text-xs font-semibold text-white backdrop-blur-sm"
+                >★ {{ h.rating }}</span
+              >
+            </div>
+          </a>
+          <div class="flex flex-1 flex-col p-5">
+            <h3 class="text-lg font-bold text-slate-900">
+              <a
+                href="{% url 'hospitals:detail' h.slug %}"
+                class="hover:text-teal-700"
+                >{{ h.name }}</a
+              >
+            </h3>
+            <p class="mt-1 flex items-center gap-1.5 text-sm text-slate-500">
+              <svg
+                class="h-4 w-4 shrink-0 text-teal-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+              {{ h.city }}{% if h.state %}, {{ h.state }}{% endif %}
+            </p>
+            {% if res %}
+            <p class="mt-3 text-sm text-slate-700">
+              <span class="font-semibold text-teal-700">General beds:</span> <span class="font-bold">{{ res.general_beds_available }}</span> 
+              
+              <span class="font-semibold text-slate-800">ICU:</span> <span class="font-bold">{{ res.icu_beds_available }}</span>
+              <span class="text-slate-700">available·</span>
+             
+            </p>
+            {% else %}
+            <p class="mt-3 text-sm text-slate-500">
+              Capacity data loading on the hospital page.
+            </p>
+            {% endif %}
+            <div class="mt-5 flex flex-wrap gap-2">
+              <a
+                href="{% url 'hospitals:detail' h.slug %}"
+                class="inline-flex flex-1 items-center justify-center rounded-full border-2 border-slate-200 px-4 py-2.5 text-center text-sm font-semibold text-slate-800 transition hover:border-teal-400 hover:text-teal-800 sm:flex-none"
+                >View details</a
+              >
+              {% if user.is_authenticated %}
+              <a
+                href="{% url 'appointments:book' h.slug %}"
+                class="inline-flex flex-1 items-center justify-center rounded-full bg-teal-500 px-4 py-2.5 text-center text-sm font-bold text-slate-900 shadow-md shadow-teal-500/20 hover:bg-teal-400 sm:flex-none"
+                >Book appointment</a
+              >
+              {% else %} {% url 'appointments:book' h.slug as book_path %}
+              <a
+                href="{% url 'accounts:login' %}?next={{ book_path|urlencode }}"
+                class="inline-flex flex-1 items-center justify-center rounded-full bg-teal-500 px-4 py-2.5 text-center text-sm font-bold text-slate-900 shadow-md shadow-teal-500/20 hover:bg-teal-400 sm:flex-none"
+                >Book appointment</a
+              >
+              {% endif %}
+            </div>
+          </div>
+        </article>
+        {% endwith %} {% empty %}
+        <div
+          class="col-span-full rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-12 text-center text-slate-600"
+        >
+          <p class="font-medium">No hospitals yet.</p>
+          <p class="mt-2 text-sm">
+            Run
+            <code class="rounded bg-white px-2 py-0.5 text-slate-800 shadow-sm"
+              >python manage.py seed_demo</code
+            >
+            to load sample hospitals with photos.
+          </p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <!-- 🗺️ Hospital Map Section -->
+    <div class="mt-20">
+      <div class="text-center">
+        <h2 class="text-3xl font-bold text-slate-900">Hospital Locations</h2>
+        <p class="mt-2 text-slate-600">View all hospitals on map</p>
+      </div>
+
+      <div
+        id="map"
+        class="mt-8 rounded-2xl border border-slate-200 shadow-lg"
+        style="height: 500px"
+      ></div>
+    </div>
+    {# CTA bar — call / contact style from reference #}
+    <div
+      class="mt-16 flex flex-col items-center justify-between gap-6 rounded-3xl bg-gradient-to-r from-slate-900 to-slate-800 px-8 py-8 text-white sm:flex-row lg:px-12"
+    >
+      <div class="flex items-center gap-4">
+        <span
+          class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-teal-400 text-slate-900 shadow-lg"
+        >
+          <svg class="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"
+            />
+          </svg>
+        </span>
+        <div>
+          <p
+            class="text-sm font-semibold uppercase tracking-wide text-teal-300"
+          >
+            Need help now?
+          </p>
+          <p class="text-lg font-bold">Use Emergency finder for nearest ER</p>
+        </div>
+      </div>
+      <a
+        href="{% url 'hospitals:emergency' %}"
+        class="inline-flex w-full items-center justify-center rounded-full bg-white px-8 py-3.5 text-sm font-bold text-slate-900 shadow-lg hover:bg-teal-50 sm:w-auto"
+      >
+        Open emergency finder
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock content %}
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var map = L.map("map").setView([25.5941, 85.1376], 12); // Patna
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap",
+    }).addTo(map);
+
+    // TEMP: single marker (we'll upgrade next)
+    L.marker([25.5941, 85.1376]).addTo(map).bindPopup("Patna").openPopup();
+  });
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+      var map = L.map('map').setView([25.5941, 85.1376], 12);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap'
+      }).addTo(map);
+
+      var hospitals = {{ hospitals_json|safe }};
+
+      hospitals.forEach(h => {
+          L.marker([h.latitude, h.longitude])
+              .addTo(map)
+              .bindPopup(h.name);
+      });
+  });
+</script>

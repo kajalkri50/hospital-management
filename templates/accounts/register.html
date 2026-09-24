@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+  <h1 class="text-2xl font-bold text-slate-900">Create patient account</h1>
+  <p class="mt-1 text-sm text-slate-600">Hospital admins and doctors are provisioned by staff.</p>
+  <form method="post" class="mt-6 space-y-4">
+    {% csrf_token %}
+    {% for field in form %}
+    {% if field.name == "password2" and otp_sent %}
+     
+    {% elif   field.name == "password1" and otp_sent %}
+    
+    {% else %}
+      <label class="block text-sm">{{ field.label }}
+        {{ field }}
+        {% if field.help_text %}<span class="mt-1 block text-xs text-slate-500">{{ field.help_text }}</span>{% endif %}
+        {% for e in field.errors %}<span class="text-xs text-red-600">{{ e }}</span>{% endfor %}
+      </label>
+      {% endif %}
+    {% endfor %}
+    {%if otp_sent == True %}
+      <label class="block text-sm">Enter OTP sent to your email
+        <input type="text" name="otp" required>
+      </label>
+    {% endif %}
+    <style>form input { margin-top:0.25rem; width:100%; border-radius:0.5rem; border:1px solid #e2e8f0; padding:0.5rem 0.75rem; font-size:0.875rem; }</style>
+    <button type="submit" class="w-full rounded-xl bg-teal-600 py-2.5 text-sm font-semibold text-white hover:bg-teal-800">Register</button>
+  </form>
+  <p class="mt-4 text-center text-sm text-slate-600">Already have an account? <a href="{% url 'accounts:login' %}" class="text-teal-800 hover:underline">Login</a></p>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Resource management{% endblock %}
+{% block content %}
+<div class="space-y-6">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <h1 class="text-3xl font-bold text-slate-900">Bed & resource management</h1>
+    <a href="{% url 'hospitals:hospital_admin_dashboard' %}" class="text-sm text-clinical-800 hover:underline">← Dashboard</a>
+  </div>
+  {% if managed_hospitals.count > 1 %}
+  <form method="get" class="text-sm">
+    <label>Hospital
+      <select name="hospital" class="ml-2 rounded-lg border border-slate-200 px-2 py-1" onchange="this.form.submit()">
+        {% for h in managed_hospitals %}
+          <option value="{{ h.pk }}" {% if hospital and hospital.pk == h.pk %}selected{% endif %}>{{ h.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+  </form>
+  {% endif %}
+  {% if hospital and resources %}
+  <form method="post" class="max-w-xl space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    {% csrf_token %}
+    <div class="grid gap-4 sm:grid-cols-2">
+      <label class="text-sm">ICU beds total
+        <input type="number" name="icu_beds_total" value="{{ resources.icu_beds_total }}" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm">
+      </label>
+      <label class="text-sm">ICU beds available
+        <input type="number" name="icu_beds_available" value="{{ resources.icu_beds_available }}" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm">
+      </label>
+      <label class="text-sm">General beds total
+        <input type="number" name="general_beds_total" value="{{ resources.general_beds_total }}" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm">
+      </label>
+      <label class="text-sm">General beds available
+        <input type="number" name="general_beds_available" value="{{ resources.general_beds_available }}" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm">
+      </label>
+      <label class="text-sm">Ventilators available
+        <input type="number" name="ventilators_available" value="{{ resources.ventilators_available }}" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm">
+      </label>
+      <label class="text-sm">Ambulances available
+        <input type="number" name="ambulances_available" value="{{ resources.ambulances_available }}" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm">
+      </label>
+    </div>
+    <button type="submit" class="rounded-xl bg-clinical-600 px-5 py-2 text-sm font-semibold text-white hover:bg-clinical-800">Save</button>
+  </form>
+  {% else %}
+  <p class="text-slate-500">Select a hospital to update resources.</p>
+  {% endif %}
+</div>
+{% endblock %}

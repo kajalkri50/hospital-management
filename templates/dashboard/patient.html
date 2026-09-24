@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Patient dashboard{% endblock %}
+{% block content %}
+<div class="space-y-8">
+  <div>
+    <h1 class="text-3xl font-bold text-slate-900">Welcome back{% if user.first_name %}, {{ user.first_name }}{% endif %}</h1>
+    <p class="text-slate-600">Track upcoming visits, notifications, and bookings.</p>
+  </div>
+  <div class="grid gap-4 sm:grid-cols-3">
+    <a href="{% url 'hospitals:search' %}" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-clinical-200">
+      <p class="text-sm font-semibold text-slate-900">Find hospitals</p>
+      <p class="mt-1 text-xs text-slate-500">GPS search & filters</p>
+    </a>
+    <a href="{% url 'appointments:history' %}" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-clinical-200">
+      <p class="text-sm font-semibold text-slate-900">Appointments</p>
+      <p class="mt-1 text-xs text-slate-500">Pay, cancel, reschedule</p>
+    </a>
+    <a href="{% url 'notifications:list' %}" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-clinical-200">
+      <p class="text-sm font-semibold text-slate-900">Notifications</p>
+      <p class="mt-1 text-xs text-slate-500">{% if unread_notifications %}{{ unread_notifications }} unread{% else %}All caught up{% endif %}</p>
+    </a>
+  </div>
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <h2 class="text-lg font-semibold text-slate-900">Upcoming</h2>
+    <ul class="mt-4 divide-y divide-slate-100">
+      {% for a in upcoming_appointments %}
+        <li class="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
+          <div>
+            <p class="font-medium text-slate-900">{{ a.hospital.name }}</p>
+            <p class="text-slate-600">{{ a.doctor.display_name }} · {{ a.scheduled_at }}</p>
+            <p class="text-xs uppercase text-slate-500">{{ a.get_status_display }}</p>
+          </div>
+          <a href="{% url 'appointments:history' %}" class="text-clinical-800 hover:underline">Manage</a>
+        </li>
+      {% empty %}
+        <li class="py-6 text-sm text-slate-500">No upcoming appointments. <a href="{% url 'hospitals:search' %}" class="text-clinical-800 hover:underline">Book one</a>.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

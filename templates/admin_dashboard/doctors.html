@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Doctor management{% endblock %}
+{% block content %}
+<div class="space-y-6">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <h1 class="text-3xl font-bold text-slate-900">Doctors</h1>
+    <a href="{% url 'hospitals:hospital_admin_dashboard' %}" class="text-sm text-clinical-800 hover:underline">← Dashboard</a>
+  </div>
+  {% if managed_hospitals.count > 1 %}
+  <form method="get" class="text-sm">
+    <label>Hospital
+      <select name="hospital" class="ml-2 rounded-lg border border-slate-200 px-2 py-1" onchange="this.form.submit()">
+        {% for h in managed_hospitals %}
+          <option value="{{ h.pk }}" {% if hospital and hospital.pk == h.pk %}selected{% endif %}>{{ h.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+  </form>
+  {% endif %}
+  {% if hospital %}
+  <p class="text-slate-600">Use Django Admin to add or edit doctors and weekly schedules for full CRUD in this hackathon build.</p>
+  <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <table class="min-w-full text-left text-sm">
+      <thead class="bg-slate-50 text-xs font-semibold uppercase text-slate-600">
+        <tr>
+          <th class="px-4 py-3">Name</th>
+          <th class="px-4 py-3">Department</th>
+          <th class="px-4 py-3">Specialization</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for d in doctors %}
+          <tr>
+            <td class="px-4 py-3 font-medium">{{ d.display_name }}</td>
+            <td class="px-4 py-3">{{ d.department.name }}</td>
+            <td class="px-4 py-3">{{ d.specialization }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <a href="/admin/hospitals/doctor/add/" class="inline-flex rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">Add doctor (Admin)</a>
+  {% else %}
+  <p class="text-slate-500">Select a hospital you administer.</p>
+  {% endif %}
+</div>
+{% endblock %}
