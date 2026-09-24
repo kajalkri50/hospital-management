@@ -116,4 +116,4 @@ Twilio env vars are reserved in `.env.example`; wire `notifications/services.py`
 
 ---
 
-Built for a **36-hour hackathon**: swap SQLite for PostgreSQL, plug in real SMTP/SMS, and harden keys before production.
+
